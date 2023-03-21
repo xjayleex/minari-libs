@@ -1,0 +1,76 @@
+syntax = "proto3";
+package messages;
+option go_package = "github.com/xjayleex/georgev-libs/pkg/api/proto/messages";
+
+import "google/protobuf/timestamp.proto";
+import "messages/types.proto";
+
+
+message PublishRequest {
+    string uuid = 1;
+}
+
+message Event {
+    // Creation timestamp of the event
+    google.protobuf.Timestamp timestamp = 1;
+    // Source of the generated event
+    Source source = 2;
+    // Data stream for the event
+    DataStream data_stream = 3;
+    // JSON Object represents Metadata (map[string]google.protobuf.Value)
+    messages.Struct metadata = 4;
+    // Field JSON Object (map[string]google.protobuf.Value)
+    messages.Struct fields = 5;
+}
+
+message Source {
+    // Input Id in the agent policy
+    string input_id = 1;
+    // Stream ID in the agent policy (Optional, some inputs do not use stream)
+    // Not to be confused with data streams in ES
+    string stream_id = 2;
+}
+
+message DataStream {
+    // Generic type describing the data
+    string type = 1;
+    // Describes the data ingested and its stucture
+    string dataset = 2;
+    // User-configurable arbitrary grouping
+    string namespace = 3;
+}
+
+message PublishReply {
+    string uuid = 1;
+    uint32 accepted_count = 2;
+    uint64 accepted_index = 3;
+}
+/*
+message Struct {
+    map<string, Value> data = 1;
+}
+
+message Value {
+    oneof kind {
+        NullValue null_value = 1;
+        double float64_value = 2;
+        float float32_value = 3;
+        int64 int64_value = 4;
+        int32 int32_value = 5;
+        uint64 uint64_value = 6;
+        uint32 uint32_value = 7;
+        string string_value = 8;
+        bool bool_value = 9;
+        Struct struct_value = 10;
+        ListValue list_value = 11;
+        google.protobuf.Timestamp timestamp_value = 12;
+    }
+}
+
+enum NullValue {
+    NULL_VALUE = 0;
+}
+
+message ListValue {
+    repeated Value values = 1;
+} */
