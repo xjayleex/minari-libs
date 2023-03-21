@@ -1,9 +1,10 @@
 syntax = "proto3";
 
 package proto;
-option go_package = "github.com/xjayleex/georgev-libs/pkg/api/proto/grpc";
+option go_package = "github.com/xjayleex/georgev-libs/api/proto/grpc;proto";
 
 import "messages/publish.proto";
+
 service Producer {
-    rpc Publish(messages.PublishRequest) returns (messages.PublishReply);
+    rpc PublishEvents(messages.PublishRequest) returns (messages.PublishReply);
 }

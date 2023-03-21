@@ -1,6 +1,6 @@
 syntax = "proto3";
 package messages;
-option go_package = "github.com/xjayleex/georgev-libs/pkg/api/proto/messages";
+option go_package = "github.com/xjayleex/georgev-libs/api/proto/messages";
 
 import "google/protobuf/timestamp.proto";
 import "messages/types.proto";
@@ -8,6 +8,7 @@ import "messages/types.proto";
 
 message PublishRequest {
     string uuid = 1;
+    repeated Event events = 2;
 }
 
 message Event {

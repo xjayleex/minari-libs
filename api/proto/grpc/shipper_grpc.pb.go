@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProducerClient interface {
-	Publish(ctx context.Context, in *messages.PublishRequest, opts ...grpc.CallOption) (*messages.PublishReply, error)
+	PublishEvents(ctx context.Context, in *messages.PublishRequest, opts ...grpc.CallOption) (*messages.PublishReply, error)
 }
 
 type producerClient struct {
@@ -34,9 +34,9 @@ func NewProducerClient(cc grpc.ClientConnInterface) ProducerClient {
 	return &producerClient{cc}
 }
 
-func (c *producerClient) Publish(ctx context.Context, in *messages.PublishRequest, opts ...grpc.CallOption) (*messages.PublishReply, error) {
+func (c *producerClient) PublishEvents(ctx context.Context, in *messages.PublishRequest, opts ...grpc.CallOption) (*messages.PublishReply, error) {
 	out := new(messages.PublishReply)
-	err := c.cc.Invoke(ctx, "/proto.Producer/Publish", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Producer/PublishEvents", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (c *producerClient) Publish(ctx context.Context, in *messages.PublishReques
 // All implementations must embed UnimplementedProducerServer
 // for forward compatibility
 type ProducerServer interface {
-	Publish(context.Context, *messages.PublishRequest) (*messages.PublishReply, error)
+	PublishEvents(context.Context, *messages.PublishRequest) (*messages.PublishReply, error)
 	mustEmbedUnimplementedProducerServer()
 }
 
@@ -55,8 +55,8 @@ type ProducerServer interface {
 type UnimplementedProducerServer struct {
 }
 
-func (UnimplementedProducerServer) Publish(context.Context, *messages.PublishRequest) (*messages.PublishReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Publish not implemented")
+func (UnimplementedProducerServer) PublishEvents(context.Context, *messages.PublishRequest) (*messages.PublishReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PublishEvents not implemented")
 }
 func (UnimplementedProducerServer) mustEmbedUnimplementedProducerServer() {}
 
@@ -71,20 +71,20 @@ func RegisterProducerServer(s grpc.ServiceRegistrar, srv ProducerServer) {
 	s.RegisterService(&Producer_ServiceDesc, srv)
 }
 
-func _Producer_Publish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Producer_PublishEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(messages.PublishRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProducerServer).Publish(ctx, in)
+		return srv.(ProducerServer).PublishEvents(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.Producer/Publish",
+		FullMethod: "/proto.Producer/PublishEvents",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProducerServer).Publish(ctx, req.(*messages.PublishRequest))
+		return srv.(ProducerServer).PublishEvents(ctx, req.(*messages.PublishRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -97,8 +97,8 @@ var Producer_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ProducerServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Publish",
-			Handler:    _Producer_Publish_Handler,
+			MethodName: "PublishEvents",
+			Handler:    _Producer_PublishEvents_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
