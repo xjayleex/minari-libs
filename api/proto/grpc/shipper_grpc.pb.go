@@ -8,7 +8,7 @@ package proto
 
 import (
 	context "context"
-	messages "github.com/xjayleex/georgev-libs/api/proto/messages"
+	messages "github.com/xjayleex/minari-libs/api/proto/messages"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProducerClient interface {
 	PublishEvents(ctx context.Context, in *messages.PublishRequest, opts ...grpc.CallOption) (*messages.PublishReply, error)
+	PersistedIndex(ctx context.Context, in *messages.PersistedIndexRequest, opts ...grpc.CallOption) (Producer_PersistedIndexClient, error)
 }
 
 type producerClient struct {
@@ -43,11 +44,44 @@ func (c *producerClient) PublishEvents(ctx context.Context, in *messages.Publish
 	return out, nil
 }
 
+func (c *producerClient) PersistedIndex(ctx context.Context, in *messages.PersistedIndexRequest, opts ...grpc.CallOption) (Producer_PersistedIndexClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Producer_ServiceDesc.Streams[0], "/proto.Producer/PersistedIndex", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &producerPersistedIndexClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Producer_PersistedIndexClient interface {
+	Recv() (*messages.PersistedIndexReply, error)
+	grpc.ClientStream
+}
+
+type producerPersistedIndexClient struct {
+	grpc.ClientStream
+}
+
+func (x *producerPersistedIndexClient) Recv() (*messages.PersistedIndexReply, error) {
+	m := new(messages.PersistedIndexReply)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // ProducerServer is the server API for Producer service.
 // All implementations must embed UnimplementedProducerServer
 // for forward compatibility
 type ProducerServer interface {
 	PublishEvents(context.Context, *messages.PublishRequest) (*messages.PublishReply, error)
+	PersistedIndex(*messages.PersistedIndexRequest, Producer_PersistedIndexServer) error
 	mustEmbedUnimplementedProducerServer()
 }
 
@@ -57,6 +91,9 @@ type UnimplementedProducerServer struct {
 
 func (UnimplementedProducerServer) PublishEvents(context.Context, *messages.PublishRequest) (*messages.PublishReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PublishEvents not implemented")
+}
+func (UnimplementedProducerServer) PersistedIndex(*messages.PersistedIndexRequest, Producer_PersistedIndexServer) error {
+	return status.Errorf(codes.Unimplemented, "method PersistedIndex not implemented")
 }
 func (UnimplementedProducerServer) mustEmbedUnimplementedProducerServer() {}
 
@@ -89,6 +126,27 @@ func _Producer_PublishEvents_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Producer_PersistedIndex_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(messages.PersistedIndexRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ProducerServer).PersistedIndex(m, &producerPersistedIndexServer{stream})
+}
+
+type Producer_PersistedIndexServer interface {
+	Send(*messages.PersistedIndexReply) error
+	grpc.ServerStream
+}
+
+type producerPersistedIndexServer struct {
+	grpc.ServerStream
+}
+
+func (x *producerPersistedIndexServer) Send(m *messages.PersistedIndexReply) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // Producer_ServiceDesc is the grpc.ServiceDesc for Producer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -101,6 +159,12 @@ var Producer_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Producer_PublishEvents_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "PersistedIndex",
+			Handler:       _Producer_PersistedIndex_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "idl/shipper.proto",
 }

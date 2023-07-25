@@ -441,7 +441,7 @@ func file_idl_messages_publish_proto_init() {
 	if File_idl_messages_publish_proto != nil {
 		return
 	}
-	file_messages_types_proto_init()
+	file_idl_messages_types_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_idl_messages_publish_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PublishRequest); i {
