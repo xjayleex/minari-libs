@@ -1,10 +1,12 @@
 syntax = "proto3";
 
 package proto;
-option go_package = "github.com/xjayleex/georgev-libs/api/proto/grpc;proto";
+option go_package = "github.com/xjayleex/minari-libs/api/proto/grpc;proto";
 
 import "messages/publish.proto";
+import "messages/persisted_index.proto";
 
 service Producer {
     rpc PublishEvents(messages.PublishRequest) returns (messages.PublishReply);
+    rpc PersistedIndex(messages.PersistedIndexRequest) returns (stream messages.PersistedIndexReply);
 }

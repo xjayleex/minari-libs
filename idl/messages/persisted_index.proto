@@ -1,0 +1,27 @@
+syntax = "proto3";
+package messages;
+option go_package = "github.com/xjayleex/minari-libs/api/proto/messages";
+
+import "google/protobuf/duration.proto";
+
+// A request for latest sequential event index that has been persisted to the
+// disk or the outputs. This is only needed for inputs that must maintain their
+// position in some persistent data sequence between restarts.
+message PersistedIndexRequest {
+    // The interval for checking the persisted index value during the subscription.
+    // An update is not sent if the value is unchanged, so it's not guaranteed to receive
+    // an update after each interval but rather to receive an update on the changed value
+    // in `polling_interval` time at most.
+    // When the value is zero the response is sent only once and the stream is closed right after.
+    google.protobuf.Duration polling_interval = 1;
+}
+   
+message PersistedIndexReply {
+    // The uuid of the shipper process, generated on startup. Clients can use this
+    // to detect when the shipper restarts.
+    string uuid = 1;
+   
+    // The highest sequential index that has been persisted. (See the API
+    // README for details on what "persisted" entails.)
+    uint64 persisted_index = 2;
+}

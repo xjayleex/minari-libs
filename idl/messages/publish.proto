@@ -1,6 +1,6 @@
 syntax = "proto3";
 package messages;
-option go_package = "github.com/xjayleex/georgev-libs/api/proto/messages";
+option go_package = "github.com/xjayleex/minari-libs/api/proto/messages";
 
 import "google/protobuf/timestamp.proto";
 import "messages/types.proto";
