@@ -21,7 +21,12 @@ message Event {
     // JSON Object represents Metadata (map[string]google.protobuf.Value)
     messages.Struct metadata = 4;
     // Field JSON Object (map[string]google.protobuf.Value)
-    messages.Struct fields = 5;
+    // messages.Struct fields = 5;
+
+    oneof typed_event {
+        messages.Struct fields = 5;
+        bytes binary = 6;
+    }
 }
 
 message Source {
